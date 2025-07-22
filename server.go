@@ -58,6 +58,7 @@ func (s *Server) Handler(conn net.Conn) {
 		buffer := make([]byte, 4096)
 		for {
 			n, err := conn.Read(buffer)
+			// 用户下线会接收到0字节 代表连接终止
 			if n == 0 {
 				s.BroadCast(user, "下线")
 				return
