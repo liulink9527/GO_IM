@@ -44,8 +44,6 @@ func (s *Server) BroadCast(user *User, msg string) {
 }
 
 func (s *Server) Handler(conn net.Conn) {
-	defer conn.Close()
-
 	user := NewUser(conn)
 	// 记录上线用户
 	s.mapLock.Lock()
