@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"sync"
 )
@@ -51,6 +52,25 @@ func (s *Server) Handler(conn net.Conn) {
 	s.mapLock.Unlock()
 	// 用户上线广播
 	s.BroadCast(user, "已上线")
+
+	//监听客户端发送的消息
+	go func() {
+		buffer := make([]byte, 4096)
+		for {
+			n, err := conn.Read(buffer)
+			if n == 0 {
+				s.BroadCast(user, "下线")
+				return
+			}
+			if err != nil && err != io.EOF {
+				fmt.Println("conn.Read err:", err)
+				return
+			}
+			// 提取用户消息 去除'\n'
+			msg := string(buffer[:n-1])
+			s.BroadCast(user, msg)
+		}
+	}()
 	// 当前handler阻塞
 	select {}
 }
